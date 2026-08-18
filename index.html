@@ -147,9 +147,9 @@
         /* ───────────── Details Grid ───────────── */
         .details-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            grid-template-columns: repeat(3, 1fr);
             gap: 1.2rem;
-            margin: 1.8rem 0 2.2rem;
+            margin: 1.8rem 0 1.5rem;
             background: #faf6f1;
             border-radius: 28px;
             padding: 1.6rem 1.8rem;
@@ -158,6 +158,11 @@
 
         .detail-item {
             text-align: center;
+        }
+
+        /* Keep empty grid cells invisible but preserve the layout */
+        .detail-item.empty {
+            visibility: hidden;
         }
 
         .detail-item .label {
@@ -175,17 +180,34 @@
             margin-top: 0.2rem;
         }
 
-        @media (max-width: 450px) {
-            .details-grid {
-                grid-template-columns: 1fr 1fr;
-                padding: 1.2rem 0.8rem;
-                gap: 0.8rem;
-            }
+        /* ───────────── Extra Details (Dress Code & Other Info) ───────────── */
+        .extra-details {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.2rem;
+            margin: 0 0 2.2rem 0;
+            padding: 1.2rem 0.5rem;
+            border-top: 1px dashed #e8ddd2;
+        }
+
+        .extra-details .detail-item .label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #a58b78;
+            font-weight: 600;
+        }
+
+        .extra-details .detail-item .value {
+            font-size: 0.9rem;
+            font-weight: 400;
+            color: #5f4c3d;
+            margin-top: 0.2rem;
         }
 
         /* ───────────── RSVP Section ───────────── */
         .rsvp-section {
-            margin-top: 2rem;
+            margin-top: 0.5rem;
             border-top: 2px dashed #e8ddd2;
             padding-top: 2.2rem;
         }
@@ -347,6 +369,29 @@
         }
 
         /* ───────────── Responsive tweaks ───────────── */
+        @media (max-width: 550px) {
+            .details-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 1rem;
+                padding: 1rem;
+            }
+
+            /* Hide empty grid items on small screens to save space */
+            .detail-item.empty {
+                display: none;
+            }
+
+            .extra-details {
+                grid-template-columns: 1fr 1fr;
+                gap: 1rem;
+                padding: 1rem 0.5rem;
+            }
+
+            .header .names {
+                font-size: 3.2rem;
+            }
+        }
+
         @media (max-width: 420px) {
             .header .names {
                 font-size: 2.6rem;
@@ -361,6 +406,10 @@
                 grid-template-columns: 1fr 1fr;
                 gap: 0.6rem;
                 padding: 1rem 0.6rem;
+            }
+            .extra-details {
+                grid-template-columns: 1fr;
+                gap: 0.8rem;
             }
         }
     </style>
@@ -395,27 +444,47 @@
         <span class="highlight">Dinner &amp; dancing</span> to follow.
     </p>
 
-    <!-- ─── Details ─── -->
+    <!-- ─── Details Grid ─── -->
     <div class="details-grid">
         <div class="detail-item">
-            <div class="label">Pre-party - 12PM</div>
+            <div class="label">Pre-party</div>
             <div class="value">Emma's parents, Adjudeni, Romania</div>
         </div>
         <div class="detail-item">
-            <div class="label">Ceremony - 2PM</div>
+            <div class="label">Ceremony</div>
             <div class="value">Biserica Coborârea Sfântului Duh, Adjudeni, Romania</div>
         </div>
         <div class="detail-item">
-            <div class="label">Reception - 6PM</div>
+            <div class="label">Reception</div>
             <div class="value">Mariko Inn, Roman, Romania</div>
         </div>
+
+        <!-- Empty grid cell 4 (creates spacing/alignment) -->
+        <div class="detail-item empty"></div>
+
+        <!-- Day 2 moved to the 5th slot -->
         <div class="detail-item">
             <div class="label">Day 2</div>
             <div class="value">Emma's parents, Adjudeni, Romania</div>
         </div>
+
+        <!-- Empty grid cell 6 (creates spacing/alignment) -->
+        <div class="detail-item empty"></div>
+    </div>
+
+    <!-- ─── New Section: Dress Code & Other Info ─── -->
+    <div class="extra-details">
+        <div class="detail-item">
+            <div class="label">Travel</div>
+            <div class="value">Iași and Bacău are the nearest airports. Both around 1 hour away. Please check which works best for you</div>
+        </div>
         <div class="detail-item">
             <div class="label">Dress Code</div>
             <div class="value">Formal</div>
+        </div>
+        <div class="detail-item">
+            <div class="label">Accommodation</div>
+            <div class="value">Rooms are available at Mariko Inn at a discounted rate</div>
         </div>
     </div>
 
@@ -526,7 +595,7 @@
             } else {
                 plusOneNameGroup.style.display = 'none';
                 plusOneNameInput.removeAttribute('required');
-                plusOneNameInput.value = ''; // clear value if hidden
+                plusOneNameInput.value = '';
             }
 
             // Number of kids
@@ -632,7 +701,7 @@
             setTimeout(() => {
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Send reply';
-                toggleConditionalFields(); // hide conditional groups again
+                toggleConditionalFields();
             }, 1000);
 
             console.log('[RSVP] Pre‑filled URL opened:', url);
