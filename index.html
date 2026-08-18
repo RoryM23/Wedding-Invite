@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Wedding Invitation · Emma & Rory</title>
+    <title>Wedding Invitation · Emma &amp; Rory</title>
 
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300&display=swap" rel="stylesheet" />
@@ -398,15 +398,15 @@
     <!-- ─── Details ─── -->
     <div class="details-grid">
         <div class="detail-item">
-            <div class="label">Pre-party</div>
+            <div class="label">Pre-party - 12PM</div>
             <div class="value">Emma's parents, Adjudeni, Romania</div>
         </div>
         <div class="detail-item">
-            <div class="label">Ceremony</div>
+            <div class="label">Ceremony - 2PM</div>
             <div class="value">Biserica Coborârea Sfântului Duh, Adjudeni, Romania</div>
         </div>
         <div class="detail-item">
-            <div class="label">Reception</div>
+            <div class="label">Reception - 6PM</div>
             <div class="value">Mariko Inn, Roman, Romania</div>
         </div>
         <div class="detail-item">
@@ -449,6 +449,39 @@
                 </select>
             </div>
 
+            <!-- Plus One Name (conditional) -->
+            <div class="form-group" id="plusOneNameGroup" style="display: none;">
+                <label for="plusOneName">Name of your plus one <span class="required">*</span></label>
+                <input
+                        type="text"
+                        id="plusOneName"
+                        name="entry.325064219"
+                        placeholder="e.g. Jane Doe"
+                />
+            </div>
+
+            <!-- Bringing kids? (Yes / No) -->
+            <div class="form-group">
+                <label for="bringingKids">Will you be bringing kids? <span class="required">*</span></label>
+                <select id="bringingKids" name="entry.986485137" required>
+                    <option value="" disabled selected>— Please select —</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                </select>
+            </div>
+
+            <!-- Number of kids (conditional) -->
+            <div class="form-group" id="kidsNumberGroup" style="display: none;">
+                <label for="kidsNumber">How many kids will you be bringing? <span class="required">*</span></label>
+                <input
+                        type="number"
+                        id="kidsNumber"
+                        name="entry.1081896973"
+                        placeholder="e.g. 2"
+                        min="1"
+                />
+            </div>
+
             <!-- Submit -->
             <button type="submit" class="submit-btn" id="submitBtn">
                 Send reply
@@ -464,40 +497,103 @@
         <span>♥</span> &nbsp; We can't wait to celebrate with you &nbsp; <span>♥</span>
         <br style="display: block; margin-top: 6px;" />
         <span style="font-family: 'Inter', sans-serif; font-size: 0.6rem; opacity: 0.6;">
-                You will be redirected to the Google Form to finalise your reply.
-            </span>
+            You will be redirected to the Google Form to finalise your reply.
+        </span>
     </div>
 </div>
 
 <script>
     (function() {
+        // DOM references
         const form = document.getElementById('rsvpForm');
         const statusEl = document.getElementById('formStatus');
         const submitBtn = document.getElementById('submitBtn');
 
-        // Your Google Form view URL (not the formResponse URL)
+        const nameInput = document.getElementById('name');
+        const plusOneSelect = document.getElementById('plusOne');
+        const plusOneNameInput = document.getElementById('plusOneName');
+        const plusOneNameGroup = document.getElementById('plusOneNameGroup');
+        const bringingKidsSelect = document.getElementById('bringingKids');
+        const kidsNumberInput = document.getElementById('kidsNumber');
+        const kidsNumberGroup = document.getElementById('kidsNumberGroup');
+
+        // ─── Conditional visibility logic ───
+        function toggleConditionalFields() {
+            // Plus one name
+            if (plusOneSelect.value === 'Yes') {
+                plusOneNameGroup.style.display = 'block';
+                plusOneNameInput.setAttribute('required', 'required');
+            } else {
+                plusOneNameGroup.style.display = 'none';
+                plusOneNameInput.removeAttribute('required');
+                plusOneNameInput.value = ''; // clear value if hidden
+            }
+
+            // Number of kids
+            if (bringingKidsSelect.value === 'Yes') {
+                kidsNumberGroup.style.display = 'block';
+                kidsNumberInput.setAttribute('required', 'required');
+            } else {
+                kidsNumberGroup.style.display = 'none';
+                kidsNumberInput.removeAttribute('required');
+                kidsNumberInput.value = '';
+            }
+        }
+
+        // Attach event listeners
+        plusOneSelect.addEventListener('change', toggleConditionalFields);
+        bringingKidsSelect.addEventListener('change', toggleConditionalFields);
+        // Also run once on load to set initial state (selects have no default value, so both hidden)
+        toggleConditionalFields();
+
+        // ─── Google Form view URL ───
         const FORM_VIEW_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSet0uQ-2KIaAtyQiIrCjX9sztbsrRmg_p2zAI1hOj_XwyHpxA/viewform';
 
+        // ─── Helper: show status ───
         function setStatus(message, type) {
             statusEl.textContent = message;
             statusEl.className = 'form-status' + (type ? ' ' + type : '');
         }
 
+        // ─── Submit handler ───
         form.addEventListener('submit', function(e) {
             e.preventDefault();
 
-            // ── Validate ──
-            const name = document.getElementById('name').value.trim();
-            const plusOne = document.getElementById('plusOne').value;
+            // ── Validate all visible required fields ──
+            const name = nameInput.value.trim();
+            const plusOne = plusOneSelect.value;
+            const plusOneName = plusOneNameInput.value.trim();
+            const bringingKids = bringingKidsSelect.value;
+            const kidsNumber = kidsNumberInput.value.trim();
 
             if (!name) {
                 setStatus('Please enter your full name.', 'error');
-                document.getElementById('name').focus();
+                nameInput.focus();
                 return;
             }
             if (!plusOne) {
                 setStatus('Please indicate if you are bringing a plus one.', 'error');
-                document.getElementById('plusOne').focus();
+                plusOneSelect.focus();
+                return;
+            }
+            if (plusOne === 'Yes' && !plusOneName) {
+                setStatus('Please enter the name of your plus one.', 'error');
+                plusOneNameInput.focus();
+                return;
+            }
+            if (!bringingKids) {
+                setStatus('Please indicate if you are bringing kids.', 'error');
+                bringingKidsSelect.focus();
+                return;
+            }
+            if (bringingKids === 'Yes' && !kidsNumber) {
+                setStatus('Please enter the number of kids you are bringing.', 'error');
+                kidsNumberInput.focus();
+                return;
+            }
+            if (bringingKids === 'Yes' && kidsNumber && parseInt(kidsNumber, 10) < 1) {
+                setStatus('Please enter a valid number of kids (at least 1).', 'error');
+                kidsNumberInput.focus();
                 return;
             }
 
@@ -509,8 +605,19 @@
             // ── Build the pre‑filled URL ──
             const params = new URLSearchParams();
             params.append('usp', 'send_form');
+
+            // Always include main fields
             params.append('entry.580676966', name);
             params.append('entry.179857970', plusOne);
+            params.append('entry.986485137', bringingKids);
+
+            // Conditionally include extra fields if answered
+            if (plusOne === 'Yes') {
+                params.append('entry.325064219', plusOneName);
+            }
+            if (bringingKids === 'Yes') {
+                params.append('entry.1081896973', kidsNumber);
+            }
 
             const url = FORM_VIEW_URL + '?' + params.toString();
 
@@ -521,18 +628,24 @@
             setStatus('✓ Reply opened in a new tab. Please submit it there.', 'success');
             form.reset();
 
-            // Re‑enable button after a moment
+            // Re‑enable button after a moment and reset conditional visibility
             setTimeout(() => {
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Send reply';
+                toggleConditionalFields(); // hide conditional groups again
             }, 1000);
 
             console.log('[RSVP] Pre‑filled URL opened:', url);
         });
 
         // ── Console reminder ──
-        console.log('📋 Wedding RSVP – Pre‑fill method');
-        console.log('✅ Uses entry.580676966 for Name and entry.179857970 for Plus 1.');
+        console.log('📋 Wedding RSVP – Pre‑fill method with conditional fields.');
+        console.log('✅ Entry IDs:');
+        console.log('   Name: entry.580676966');
+        console.log('   Plus 1: entry.179857970');
+        console.log('   Plus 1 Name: entry.325064219 (conditional)');
+        console.log('   Bringing kids: entry.986485137');
+        console.log('   Number of kids: entry.1081896973 (conditional)');
         console.log('🔗 The form will open in a new tab for final submission.');
     })();
 </script>
